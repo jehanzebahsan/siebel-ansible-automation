@@ -1,0 +1,62 @@
+---
+# Playbook for create siebel server profile
+
+- name: Delete Single Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/{{siebel_server_profile}}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  when: multi_server_profiles == false
+  tags:
+    - srvrprofile
+
+
+- name: Create a Single Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      ServerConfigParams:
+        Username: "{{ siebel_dbusername }}"
+        Password: "{{ siebel_dbusernamepwd }}"
+        AnonLoginUserName: "{{ siebel_anonlogin }}"
+        AnonLoginPassword: "{{ siebel_anonloginpwd }}"
+        EnableCompGroupsSIA: "{{ siebel_enablecompgroups }}"
+        SCBPort: "{{sc_brokerport}}"
+        LocalSynchMgrPort: "{{sync_mgrport}}"
+        ModifyServerEncrypt: false
+        ModifyServerAuth: false
+        Encrypt:            null
+        CertFileNameServer: null
+        CACertFileName:     null
+        ClusteringEnvironmentSetup: NotClustered
+        UseOracleConnector: true
+        SiebelEnterprise: "{{siebel_enterprise}}"
+        SiebelClusterGateway: null
+        NameserverHostName: "{{ hostvars[groups['gateway-server'][0]]['ansible_fqdn'] }}"
+        NamesrvrPort: "{{ gw_redirectport }}"
+        Db2InstHome: null
+        SqlServerPort: null
+      Profile:
+        ProfileName: "{{siebel_server_profile}}"
+  environment:
+    https_proxy: ""
+  register: create_single_server_profile
+  #when: multi_server_profiles == false
+  tags:
+    - srvrprofile

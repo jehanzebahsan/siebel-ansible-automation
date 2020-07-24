@@ -1,0 +1,16 @@
+- name: create directory
+  file:
+    path: "{{software_repository_path}}/{{product}}/download"
+    state: directory
+    mode: 0755
+
+#- name: get file from mos
+#  get_url:
+#    url: "{{ item.split(';')[2] }}"
+#    tmp_dest: "{{software_repository_path}}"
+#    dest: "{{software_repository_path}}/{{product}}/download/{{ item.split(';')[0] }}"
+#    headers: "User-Agent:Mozilla/#5.0,Cookie:{{ou_cookie.set_cookie.split(';')[3].split(', ')[2]}}"
+#    #checksum: "sha1:{{ item.split(';')[3] }}"
+#    timeout: 20
+#    force: no
+#  with_lines: "xsltproc files/mos-patch-metadata.xslt files/{{product}}.xml"

@@ -1,0 +1,86 @@
+#- name: create dbenv.sh
+#  shell : "source /home/siebel/.bash_profile && ./CreateDbSrvrEnvScript {{siebel_base_path}}/ses/ ENU Oracle"
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  args:
+#    chdir: "{{siebel_base_path}}/ses/siebsrvr/install_script/install"
+#    executable: "/usr/bin/bash"
+#    creates: "{{siebel_base_path}}/ses/siebsrvr/dbenv.sh"
+#
+#- name: template create tablespaces sql
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  template:
+#    src: roles/siebel-server/files/create_tablespace.sql.j2
+#    dest: "/tmp/create_tablespace_{{item}}.sql"
+#  with_items:
+#    - "SDATA"
+#    - "SINDEX"
+#
+#- name: create tablespaces
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  shell : "source /home/siebel/.bash_profile && echo '{{oracle_passwd}}'| sqlplus system@siebeldb @/tmp/create_tablespace_{{item}}.sql"
+#  args:
+#    executable: "/usr/bin/bash"
+#    creates: "{{oracle_base_path}}/oracle/base/oradata/orcl/{{item}}.dbf"
+#  with_items:
+#    - "SDATA"
+#    - "SINDEX"
+#
+#- name: template grantusr sql
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  template:
+#    src: roles/siebel-server/files/grantusr.sql.j2
+#    dest: "/tmp/grantusr.sql"
+#
+#- name: run grantusr sql
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  shell : "source /home/siebel/.bash_profile && echo '{{oracle_passwd}}'| sqlplus system@siebeldb @/tmp/grantusr.sql"
+#  args:
+#    executable: "/usr/bin/bash"
+
+- name: template create-siebel-database.rsp
+  become: true
+  become_user: siebel
+  become_method: sudo
+  template:
+    src: "roles/siebel-server/files/siebel-{{siebel_version}}-create-siebel-database.rsp.j2"
+    dest: "/tmp/siebel-{{siebel_version}}-create-siebel-database.rsp"
+
+- name: create siebel database config.sh
+  shell : "source /home/siebel/.bash_profile && source {{siebel_base_path}}/ses/siebsrvr/dbenv.sh && ./config.sh -mode dbsrvr -responsefile /tmp/siebel-{{siebel_version}}-create-siebel-database.rsp"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+    chdir: "{{siebel_base_path}}/ses/config"
+    executable: "/usr/bin/bash"
+    creates: "{{siebel_base_path}}/ses/siebsrvr/bin/master_install.ucf"
+
+
+#TODO fix mstrep.dat
+#- name: create siebel database
+#  shell : "source /home/siebel/.bash_profile && source {{siebel_base_path}}/ses/siebsrvr/dbenv.sh && ./srvrupgwiz /m master_install.ucf"
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  args:
+#    executable: "/usr/bin/bash"
+#    chdir: "{{siebel_base_path}}/ses/siebsrvr/bin"
+#    creates: "{{siebel_base_path}}/ses/siebsrvr/log/install/state/state.log"
+#
+#- name: enable lic codes
+#  shell : "source /home/siebel/.bash_profile && echo 'update siebel.s_app_key set INACTIVE_FLG='N' where INACTIVE_FLG='Y';commit;'| sqlplus sadmin/#BEstr0ng_#1@siebeldb"
+#  become: true
+#  become_user: siebel
+#  become_method: sudo
+#  args:
+#    executable: "/usr/bin/bash"

@@ -1,0 +1,55 @@
+---
+# Playbook for deploy application interface
+
+
+- name: bootstrap AI
+  become: true
+  become_user: "{{siebel_owner_user}}"
+  become_method: sudo
+  uri:
+    url: "https://{{hostvars[item]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cginfo"
+    force_basic_auth: yes
+    user: "{{ ai_username }}"
+    password: "{{ ai_usernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    body:
+      CGHostURI: "{{ hostvars[gateway-server]['ansible_fqdn'] }}:{{ gw_redirectport }}"
+  environment:
+    https_proxy: ""
+  register: bootstrap_ai
+  #with_items: "{{groups['siebel_ai']}}"
+  with_items: "{{groups['siebel-server']}}"
+  tags:
+    - bootstrap_ai
+    - aideploy
+
+
+- name: deploy ai
+  uri:
+    url: "https://{{hostvars[item]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/swsm/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 600
+    body:
+      DeploymentInfo:
+        PhysicalHostIP: "{{ hostvars[item]['ansible_fqdn'] }}:{{ ai_redirectport }}"
+        ProfileName: "{% if multi_server_profiles %}{{ hostvars[item]['ai_profile'] }}{% else %}{{siebel_ai_profile}}{%endif%}"
+        Action: Deploy
+      DeploymentParam:
+        Node:     "ai_{{ item }}"
+        NodeDesc: "ai_{{ item }} Siebel Application Interface Node"
+  environment:
+    https_proxy: ""
+  register: deploy_ai
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['siebel_ai'] }}"
+  tags:
+    - aideploy

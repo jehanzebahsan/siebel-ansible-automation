@@ -1,0 +1,23 @@
+---
+# Playbook for Creating a Siebel Enterpise via SMC
+- hosts: siebel-server
+  roles:
+    #- siebel-deploy-cgw
+    #- siebel-profile-enterprise
+    #- siebel-deploy-enterprise
+    #- siebel-profile-ses
+    #- siebel-deploy-ses
+    #- siebel-profile-sai
+    - siebel-deploy-sai
+
+
+
+    #- siebel-profile-cgwcluster
+    #- siebel-profile-migration
+    #- siebel-deploy-cgwcluster
+    #- siebel-deploy-enterprise
+    #- siebel-deploy-ses
+
+    #- siebel-deploy-migration
+    #- siebel-migration-connection
+    #- siebel-migration-plan

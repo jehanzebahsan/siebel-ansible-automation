@@ -1,0 +1,108 @@
+---
+# Playbook for creating siebel Application Interface profile
+
+- name: AI Profile Already Exists?
+  uri:
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/{{item.Profile.ProfileName}}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: GET
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  register: ai_profile_exists
+  with_items: '{{ai_profiles.SWSMProfile}}'
+  tags:
+    - never
+
+- name: create AI Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel-server'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cloudgateway/profiles/swsm/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+        ConfigParam:
+          defaults:
+            DoCompression: true
+            EnableFQDN: false
+            AuthenticationProperties:
+              SessionTimeout: 900
+              GuestSessionTimeout: 300
+              SessionTimeoutWLMethod: HeartBeat
+              SessionTimeoutWLCommand: UpdatePrefMsg
+              SessionTokenMaxAge: 2880
+              SessionTokenTimeout: 900
+              SingleSignOn: false
+              AnonUserName: "{{siebel_guestcst}}"
+              AnonPassword: "{{siebel_guestcstpwd}}"
+          RESTInBound:
+            RESTAuthenticationProperties:
+              AnonUserName: "{{siebel_guestcst}}"
+              AnonPassword: "{{siebel_guestcstpwd}}"
+              AuthenticationType: Basic
+              SessKeepAlive: 10
+              ValidateCertificate: true
+            LogProperties:
+              LogLevel: ERROR
+            ObjectManager: eaiobjmgr_enu
+            Baseuri: "https://{{hostvars[groups['siebel-server'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0"
+            MaxConnections: 20
+            #MinConnections: 10
+            RESTResourceParamList: []
+          UI:
+            LogProperties:
+              LogLevel: ERROR
+          EAI:
+            LogProperties:
+              LogLevel: ERROR
+          DAV:
+            LogProperties:
+              LogLevel: ERROR
+          RESTOutBound:
+            LogProperties:
+              LogLevel: ERROR
+          SOAPOutBound:
+            LogProperties:
+              LogLevel: ERROR
+          Applications:
+          - Name: ecomm
+            ObjectManager: eaiobjmgr_enu
+            Language: enu
+            StartCommand: ''
+            EnableExtServiceOnly: false
+            AvailableInSiebelMobile: false
+            AuthenticationProperties:
+              SessionTimeout: 900
+              GuestSessionTimeout: 300
+              SessionTimeoutWLMethod: HeartBeat
+              SessionTimeoutWLCommand: UpdatePrefMsg
+              SessionTokenMaxAge: 2880
+              SessionTokenTimeout: 900
+              SingleSignOn: false
+              AnonUserName: "{{siebel_guestcst}}"
+              AnonPassword: "{{siebel_guestcstpwd}}"
+          RESTInBoundResource:
+          - ResourceType: Data
+            RESTResourceParamList: []
+          swe:
+            Language: ENU
+            MaxQueryStringLength: -1
+            SeedFile: ''
+            SessionMonitor: false
+            AllowStats: true
+        Profile:
+          ProfileName: Default_AI_Profile
+    environment:
+      https_proxy: ""
+    register: create_ai_profile

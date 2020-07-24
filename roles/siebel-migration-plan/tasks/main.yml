@@ -1,0 +1,120 @@
+---
+# Playbook for Creating a Siebel Migration Application Connection
+    
+- name: Delete Existing F-RR Plans
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/migration/plan/F-RR%20Import%20{{ hostvars[item]['migration_conn'] }}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes    
+  register: DeletePlan
+  with_items: "{{groups['siebel_ai']}}"
+  when: 
+  - siebel_mig_multi_conn == true
+  - hostvars[item]['migration_conn'] is defined
+  - hostvars[item]['migration_conn'] != "" 
+  tags:
+  - never
+  - mig_plan_frr
+  - del_mig_plan_frr
+   
+- name: Create Multi-Server F-RR Plans
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/migration/plan"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      name: "F-RR Import {{ hostvars[item]['migration_conn'] }}"
+      description: "Full RR Migration Import {{ hostvars[item]['migration_conn'] }}"
+      source: ""
+      target: "{{ hostvars[item]['migration_conn'] }}"
+      resources:
+      - name: "Schema Service"
+        isSelected: true
+      - name: "Runtime Repository Data Service"
+        isSelected: true
+      - name: "Application Workspace Data Service"
+        isSelected: true
+  environment:
+    https_proxy: ""
+  register: Createplan
+  with_items: "{{groups['siebel_ai']}}"
+  when: 
+  - siebel_mig_multi_conn == true
+  - hostvars[item]['migration_conn'] is defined
+  - hostvars[item]['migration_conn'] != ""  
+  tags:
+  - never
+  - mig_plan_frr
+  
+- name: Delete Existing IRR Plans
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/migration/plan/I-RR+Import+{{ hostvars[item]['migration_conn'] }}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes    
+  register: DeletePlan
+  with_items: "{{groups['siebel_ai']}}"
+  when: 
+  - siebel_mig_multi_conn == true
+  - hostvars[item]['migration_conn'] is defined
+  - hostvars[item]['migration_conn'] != "" 
+  tags:
+  - mig_plan
+   
+- name: Create Multi-Server IRR Plans
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/migration/plan"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      name: "I-RR Import {{ hostvars[item]['migration_conn'] }}"
+      description: "Incremental RR Migration Async Import {{ hostvars[item]['migration_conn'] }}"
+      source: ""
+      target: "{{ hostvars[item]['migration_conn'] }}"
+      resources:
+      - name: "Schema Service"
+        isSelected: true
+      - name: "Incremental Runtime Repository Data Service"
+        isSelected: true
+      - name: "Incremental Application Workspace Data Service"
+        isSelected: true
+  environment:
+    https_proxy: ""
+  register: Createplan
+  with_items: "{{groups['siebel_ai']}}"
+  when: 
+  - siebel_mig_multi_conn == true
+  - hostvars[item]['migration_conn'] is defined
+  - hostvars[item]['migration_conn'] != ""  
+  tags:
+  - mig_plan  
+  

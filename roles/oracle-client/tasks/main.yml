@@ -1,0 +1,47 @@
+---
+# tasks file for orcle client
+- debug:
+     msg: "siebel-smc URL using ansible_fqdn = {{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cginfo"
+
+- name: create oracle_base
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0775
+    owner: siebel
+    group: sse_role
+  with_items:
+    - "{{oracle_base_path}}"
+    - "{{oracle_base_path}}/oraInventory"
+
+- name: create oraInventory
+  blockinfile:
+    path: "{{oracle_base_path}}/oraInventory/oraInst.loc"
+    create: yes
+    mode: 0775
+    owner: siebel
+    group: sse_role
+    block: |
+       inventory_loc={{oracle_base_path}}/oraInventory
+       inst_group=siebel
+
+
+- name: template oracle_client response file
+  template:
+    src: "roles/oracle-client/files/oracle-client-{{oracle_client_version}}.rsp.j2"
+    dest: "/tmp/oracle-client-{{oracle_client_version}}.rsp"
+
+- name: install oracle_client
+  shell : "source /home/siebel/.bash_profile && ./runInstaller -ignoreSysPrereqs -ignorePrereq -showProgress -invPtrLoc {{oracle_base_path}}/oraInventory/oraInst.loc -silent -waitforcompletion -responseFile /tmp/oracle-client-{{oracle_client_version}}.rsp"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+    executable: "/usr/bin/bash"
+    chdir: "/mnt{{software_repository_path}}/oracle-client-{{target_platform}}-{{oracle_client_version}}/unarchive/client32"
+    creates: "{{oracle_home_path}}"
+
+- name: copy tnsnames.ora
+  template:
+    src: "roles/oracle-client/files/oracle-client-tnsnames.ora.j2"
+    dest: "{{oracle_home_path}}/network/admin/tnsnames.ora"

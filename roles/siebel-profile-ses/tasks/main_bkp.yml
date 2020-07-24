@@ -1,0 +1,173 @@
+---
+# Playbook for create siebel server profile
+
+- set_fact:
+    multi_server_profiles: "{% if siebel_server_profile is defined %}no{% else %}yes{% endif %}"
+  tags:
+    - always  
+        
+- name: Include vars for Server Profiles
+  include_vars:
+    file: "data/{{siebel_environment}}/siebelserver_profiles.json"
+    name: siebsrvr_profiles
+  when: multi_server_profiles == true 
+  tags:
+    - never
+
+- name: Delete Sample Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/sample_server_profile"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - srvrprofile
+
+- name: Delete Single Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/{{siebel_server_profile}}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  when: multi_server_profiles == false  
+  tags:
+    - srvrprofile
+    
+- name: Create a Single Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      ServerConfigParams:
+        Username: "{{ siebel_dbusername }}"
+        Password: "{{ siebel_dbusernamepwd }}"
+        AnonLoginUserName: "{{ siebel_anonlogin }}"
+        AnonLoginPassword: "{{ siebel_anonloginpwd }}"
+        EnableCompGroupsSIA: "{{ siebel_enablecompgroups }}"
+        SCBPort: "{{sc_brokerport}}"
+        LocalSynchMgrPort: "{{sync_mgrport}}"
+#            ModifyServerEncrypt: "{% if siebel_ent_encrypt %}true{% else %}false{% endif %}"
+#            ModifyServerAuth: true
+#            Encrypt:            "{% if siebel_ent_encrypt %}SISNAPI{% else %}null{% endif %}"
+#            CertFileNameServer: "{% if siebel_ent_encrypt %}{{ siebel_base_path }}/{{install_dir_ses}}/applicationcontainer/siebelcerts/{{pki_keystore}}{% else %}null{% endif %}"
+#            CACertFileName:     "{% if siebel_ent_encrypt %}{{ siebel_base_path }}/{{install_dir_ses}}/applicationcontainer/siebelcerts/{{pki_truststore}}{% else %}null{% endif %}"
+        ModifyServerEncrypt: false
+        ModifyServerAuth: false
+        Encrypt:            null
+        CertFileNameServer: null
+        CACertFileName:     null
+        ClusteringEnvironmentSetup: NotClustered
+        UseOracleConnector: true
+        SiebelEnterprise: "{{siebel_enterprise}}"
+        SiebelClusterGateway: null
+        NameserverHostName: "{{ hostvars[primary_gw]['ansible_fqdn'] }}"
+        NamesrvrPort: "{{ gw_redirectport }}"
+        Db2InstHome: null
+        SqlServerPort: null
+      Profile:
+        ProfileName: "{{siebel_server_profile}}"
+  environment:
+    https_proxy: ""
+  register: create_single_server_profile
+  when: multi_server_profiles == false    
+  tags:
+    - srvrprofile
+
+- debug:
+     msg: "server={{ hostvars[item]['siebsrvr_profile'] }}  Comps={{hostvars[item]['CompGroups']}}"
+  with_items: "{{groups['siebel_server']}}"
+  when: 
+  - multi_server_profiles == true
+  - hostvars[item]['CompGroups'] is defined
+  - hostvars[item]['CompGroups'] != ""
+  tags:
+    - srvrprofile
+
+- name: Delete Multi Server Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/{{ hostvars[item]['siebsrvr_profile'] }}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  with_items: "{{groups['siebel_server']}}"
+  when: 
+  - multi_server_profiles == true
+  - hostvars[item]['CompGroups'] is defined
+  - hostvars[item]['CompGroups'] != "" 
+  tags:
+    - srvrprofile
+    
+- name: Create Multi-Server Profiles
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/servers/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      ServerConfigParams:
+        Username: "{{ siebel_dbusername }}"
+        Password: "{{ siebel_dbusernamepwd }}"
+        AnonLoginUserName: "{{ siebel_anonlogin }}"
+        AnonLoginPassword: "{{ siebel_anonloginpwd }}"
+        EnableCompGroupsSIA: "{{ hostvars[item]['CompGroups'] }}"
+        SCBPort: "{{sc_brokerport}}"
+        LocalSynchMgrPort: "{{sync_mgrport}}"
+        ModifyServerEncrypt: false
+        ModifyServerAuth: false
+        Encrypt:            null
+        CertFileNameServer: null
+        CACertFileName:     null
+        ClusteringEnvironmentSetup: NotClustered
+        UseOracleConnector: true
+        SiebelEnterprise: "{{siebel_enterprise}}"
+        SiebelClusterGateway: null
+        NameserverHostName: "{{ hostvars[primary_gw]['ansible_fqdn'] }}"
+        NamesrvrPort: "{{ gw_redirectport }}"
+        Db2InstHome: null
+        SqlServerPort: null
+      Profile:
+        ProfileName: "{{ hostvars[item]['siebsrvr_profile'] }}"
+  environment:
+    https_proxy: ""
+  register: create_multi_server_profile
+#  with_items: '{{siebsrvr_profiles.ServerProfile}}'
+  with_items: "{{groups['siebel_server']}}"
+  when: 
+  - multi_server_profiles == true
+  - hostvars[item]['CompGroups'] is defined
+  - hostvars[item]['CompGroups'] != ""
+  tags:
+    - srvrprofile

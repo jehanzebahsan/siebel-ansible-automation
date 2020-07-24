@@ -1,0 +1,4 @@
+#- hosts: gateway-server
+- hosts: siebel-server
+- debug:
+     msg: "siebel-smc URL using ansible_fqdn = {{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cginfo"

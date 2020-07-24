@@ -1,0 +1,107 @@
+---
+# Playbook for Siebel Bootstrap Cloud Gateway
+
+    - debug:
+         msg: "siebel-smc URL using ansible_fqdn = {{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cginfo"
+
+    - debug:
+         msg: "siebel-smc ansible_nodename = {{hostvars[groups['siebel-smc'][0]]['ansible_nodename']}}"
+
+    - debug:
+         msg: "oracle-database = {{groups['oracle-database'][0]}} "
+
+    #- set_fact:
+        #siebel-server: "{% for host in groups['siebel_gateway'] if hostvars[host].primary_node is defined and hostvars[host].primary_node %}{{host}}{% endfor %}"
+        #siebel-server: "{% for host in groups['siebel-server'] if hostvars[host].primary_node is defined and hostvars[host].primary_node %}{{host}}{% endfor %}"
+    #  tags:
+    #    - always
+
+    - debug:
+         #msg: "CGW URI = {{ hostvars[siebel-server]['ansible_fqdn'] }}:{{ gw_redirectport }}"
+         msg: "CGW URI = {{ hostvars[groups['siebel-smc'][0]]['ansible_fqdn'] }}:{{ gw_redirectport }}"
+
+
+
+    - name: initial setup
+      become: true
+      become_user: "{{siebel_owner_user}}"
+      become_method: sudo
+      uri:
+        url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ai_redirectport}}/siebel/v1.0/cginfo"
+        force_basic_auth: yes
+        user: "{{ ai_username }}"
+        password: "{{ ai_usernamepwd }}"
+        validate_certs: no
+        method: POST
+        body_format: json
+        return_content: yes
+        body:
+          CGHostURI: "{{ hostvars[groups['gateway-server'][0]]['ansible_fqdn'] }}:{{ gw_redirectport }}"
+      environment:
+        https_proxy: ""
+      register: initial_setup
+      tags:
+        - gateway1
+
+
+    - name: GatewaySecurityProfile
+      uri:
+        url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/GatewaySecurityProfile"
+        force_basic_auth: yes
+        user: "{{ ai_username }}"
+        password: "{{ ai_usernamepwd }}"
+        validate_certs: no
+        method: POST
+        body_format: json
+        return_content: yes
+        body:
+          Profile:
+            ProfileName: Gateway
+          SecurityConfigParams:
+            DataSources:
+              - Name: "{{ siebel_db_netservicename }}"
+                Type: "DB"
+                #Host: "{{ hostvars[groups['oracle-database'][0]]['ansible_fqdn']}}"
+                Host: "{{siebel_db_hostname}}"
+                Port: "{{ siebel_db_port }}"
+                SqlStyle: "{{ db_platform }}"
+                Endpoint: "{{ siebel_db_servicename }}"
+                TableOwner: "{{ siebel_tableowner }}"
+                HashUserPwd: false
+                HashAlgorithm: "SHA1"
+                CRC: ""
+            SecAdptName: "DBSecAdpt"
+            SecAdptMode: "DB"
+            NSAdminRole:
+              - "Siebel Administrator"
+            TestUserName: "{{ siebel_dbusername }}"
+            TestUserPwd: "{{ siebel_dbusernamepwd }}"
+            DBSecurityAdapterDataSource: "{{ siebel_db_netservicename }}"
+            DBSecurityAdapterPropagateChange: false
+      environment:
+        https_proxy: ""
+      register: GatewaySecurityProfile
+      tags:
+        - gateway2
+
+    - name: bootstrapCG
+      uri:
+        url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/bootstrapCG"
+        force_basic_auth: yes
+        user: "{{ siebel_dbusername }}"
+        password: "{{ siebel_dbusernamepwd }}"
+        validate_certs: no
+        method: POST
+        body_format: json
+        return_content: yes
+        timeout: 120
+        body:
+          registryPort: "{{ gw_registryport }}"
+          registryUserName: "{{ siebel_dbusername }}"
+          registryPassword: "{{ siebel_dbusernamepwd }}"
+          PrimaryLanguage: "{{ siebel_primary_lang }}"
+      environment:
+        https_proxy: ""
+      register: bootstrapCG
+      tags:
+        - gateway3

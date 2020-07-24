@@ -1,0 +1,15 @@
+---
+# Playbook for Deploying a complete siebel stack
+#
+#- include: oracle-database.yml
+#- include: software-repository.yml
+#- include: oracle-client.yml
+#- include: siebel-gateway.yml
+#- include: siebel-ai.yml
+#- include: siebel-server.yml
+#- include: siebel-update.yml
+- include: siebel-enterprise.yml
+
+
+########### DEMO ##############
+#- include: db-create-test.yml

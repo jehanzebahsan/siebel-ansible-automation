@@ -1,0 +1,105 @@
+---
+# Playbook for creating siebel Application Interface profile
+
+- name: Include vars for AI Profiles
+  include_vars:
+    file: "data/{{siebel_environment}}/ai_profiles.json"
+    name: ai_profiles
+  tags:
+    - aiprofile
+#    - delete_aiprofile
+    
+    
+- name: Delete Existing AI Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/{{item.Profile.ProfileName}}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  with_items: '{{ai_profiles.SWSMProfile}}'
+  tags:
+    - aiprofile
+    - delete_aiprofile
+
+- name: AI Profile Already Exists?
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/{{item.Profile.ProfileName}}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: GET
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  register: ai_profile_exists
+  with_items: '{{ai_profiles.SWSMProfile}}'
+  tags:
+    - never
+
+
+    
+- name: create AI Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST #"{% if ai_profile_exists.results[0].status == 401 %}POST{% else %}PUT{% endif %}"
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+        "{{item}}"
+  environment:
+    https_proxy: ""
+  register: create_ai_profile
+  with_items: '{{ai_profiles.SWSMProfile}}'
+  tags:
+    - aiprofile
+
+- name: Delete Sample AI Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/sample_basic_appinterface_profile"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - aiprofile
+
+- name: Delete Sample AI Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/swsm/sample_industry_appinterface_profile"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - aiprofile

@@ -1,0 +1,31 @@
+---
+# tasks file for oracle-database
+
+- name: Create DB System
+  oci_db_system:
+    compartment_id: "ocid1.compartment.oc1..aaaaaaaavtaiyouq3vuzdn7rjx36rcltjrcrxazt7cmrtp57vhylqqisitna"
+    availability_domain: "vzAG:US-ASHBURN-AD-3"
+    data_storage_percentage: 80
+    database_edition: "ENTERPRISE_EDITION"
+    db_home:
+      database:
+        admin_password: 'BEstr0ng_#1'
+        character_set: 'AL32UTF8'
+        db_backup_config:
+         auto_backup_enabled: False
+        db_name: 'siebeldb'
+        db_workload: 'OLTP'
+        ncharacter_set: 'AL16UTF16'
+        db_version: '12.1.0.2'
+      display_name: siebel-db
+    disk_redundancy: "NORMAL"
+    display_name: "siebeldb"
+    hostname: "siebdbhost"
+    initial_data_storage_size_in_gb: 4096
+    license_model: "LICENSE_INCLUDED"
+    node_count: 1
+    shape: "VM.Standard2.2"
+    ssh_public_keys: ["/home/opc/ansible/ansible-key.pub"]
+    subnet_id: "ocid1.subnet.oc1.iad.aaaaaaaahulzry5iuww7au74kbuiykfwdzcsfoynmcmtunhcfgd4ueb5kihq"
+    wait: False
+    state: 'present'

@@ -1,0 +1,143 @@
+---
+##################Stopping services
+# stop ai
+- name: Stop AI Tomcat
+  systemd:
+    name: ai-tomcat
+    state: stopped
+
+- name: wait for tomcat to stop
+  wait_for:
+    port: 8082
+    delay: 10
+    state: stopped
+
+# stop gw
+- name: Stop GW Tomcat
+  systemd:
+    name: gtw-tomcat
+    state: stopped
+
+- name: wait for tomcat to stop
+  wait_for:
+    port: 8092
+    delay: 10
+    state: stopped
+
+
+# stop ses
+- name: Stop SES Tomcat
+  systemd:
+    name: ses-tomcat
+    state: stopped
+
+- name: wait for tomcat to stop
+  wait_for:
+    port: 8102
+    delay: 10
+    state: stopped
+
+########################### Creating response files
+
+# response file for Siebel update for gtatewy
+- name: template install appinterface response file
+  become: true
+  become_user: siebel
+  become_method: sudo
+  template:
+    src: roles/siebel-update/files/siebel-{{siebel_update_version}}-install-gw.rsp.j2
+    dest: /tmp/siebel-{{siebel_update_version}}-install-gw.rsp
+
+# response file for Siebel update for ses
+- name: template install appinterface response file
+  become: true
+  become_user: siebel
+  become_method: sudo
+  template:
+    src: roles/siebel-update/files/siebel-{{siebel_update_version}}-install-ses.rsp.j2
+    dest: /tmp/siebel-{{siebel_update_version}}-install-ses.rsp
+
+# response file for Siebel update for ai
+- name: template install appinterface response file
+  become: true
+  become_user: siebel
+  become_method: sudo
+  template:
+    src: roles/siebel-update/files/siebel-{{siebel_update_version}}-install-ai.rsp.j2
+    dest: /tmp/siebel-{{siebel_update_version}}-install-ai.rsp
+
+############################################ UPDATE PATCH INSTALLTION STARTS
+- name: install gw UPDATE
+  shell : "source /home/siebel/.bash_profile && ./runInstaller -silent -waitforcompletion -responseFile /tmp/siebel-{{siebel_update_version}}-install-gw.rsp -jreloc {{java_home}} -invPtrLoc {{siebel_base_path}}/gw/oraInventory/oraInst.loc"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+    chdir: "/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_update_version }}/Siebel_Install_Image/{{siebel_update_version}}.update/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1/install"
+    executable: "/usr/bin/bash"
+    creates: "{{siebel_base_path}}/gw/ps_backup"
+
+- name: install ses UPDATE
+  shell : "source /home/siebel/.bash_profile && ./runInstaller -silent -waitforcompletion -responseFile /tmp/siebel-{{siebel_update_version}}-install-ses.rsp -jreloc {{java_home}} -invPtrLoc {{siebel_base_path}}/ses/oraInventory/oraInst.loc"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+      chdir: "/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_update_version }}/Siebel_Install_Image/{{siebel_update_version}}.update/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1/install"
+      executable: "/usr/bin/bash"
+      creates: "{{siebel_base_path}}/ses/ps_backup"
+
+- name: install appinterface UPDATE
+  shell : "source /home/siebel/.bash_profile && ./runInstaller -silent -waitforcompletion -responseFile /tmp/siebel-{{siebel_update_version}}-install-ai.rsp -jreloc {{java_home}} -invPtrLoc {{siebel_base_path}}/ai/oraInventory/oraInst.loc"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+    chdir: "/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_update_version }}/Siebel_Install_Image/{{siebel_update_version}}.update/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1/install"
+    executable: "/usr/bin/bash"
+    creates: "{{siebel_base_path}}/ai/ps_backup"
+
+###################################### UPDATE PATCH INSTALLATION ENDS
+
+###################################### starting services
+
+# start gw
+- name: Start GTW Tomcat
+  systemd:
+    name: gtw-tomcat
+    state: started
+    enabled: yes
+
+- name: wait for tomcat to start
+  wait_for:
+    port: 8092
+    delay: 10
+    state: started
+
+
+# start ses
+- name: Start SES Tomcat
+  systemd:
+    name: ses-tomcat
+    state: started
+    enabled: yes
+
+- name: wait for tomcat to start
+  wait_for:
+    port: 8102
+    delay: 10
+    state: started
+
+
+# start ai
+- name: Start AI Tomcat
+  systemd:
+    name: ai-tomcat
+    state: started
+    enabled: yes
+
+- name: wait for tomcat to start
+  wait_for:
+    port: 8082
+    delay: 10
+    state: started

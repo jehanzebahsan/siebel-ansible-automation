@@ -1,0 +1,40 @@
+all:
+  vars:
+    ansible_user: opc
+
+
+[repository-server]
+10.0.0.5 ansible_user=opc
+
+siebel_server:
+#10.0.0.4 ansible_user=opc ansible_become=true
+  hosts:
+    siebsrvr:
+      siebsrvr_name: Demo_ses
+      siebsrvr_profile: Default_Server_Profile
+      CompGroups: "eai,commmgmt,workflow,asgnmgmt,remote,callcenter"
+
+[gateway-server]
+10.0.0.4 ansible_user=opc ansible_become=true
+
+[ai-server]
+10.0.0.4 ansible_user=opc ansible_become=true
+
+[siebel-smc]
+10.0.0.4 ansible_user=opc ansible_become=true
+
+[oracle-database]
+10.0.0.6 ansible_user=opc ansible_become=true
+
+#
+#[gateway-server]
+#192.168.0.2 ansible_user=root
+#
+#[siebel-server]
+#192.168.0.2 ansible_user=root
+#
+#[siebel-webtier]
+#192.168.0.2 ansible_user=root
+#
+#[siebel-ai]
+#192.168.0.2 ansible_user=root

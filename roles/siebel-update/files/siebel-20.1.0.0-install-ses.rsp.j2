@@ -1,0 +1,15 @@
+RESPONSEFILE_VERSION=2.2.1.0.0
+s_shiphomeLocation="/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_update_version }}/Siebel_Install_Image/{{ siebel_update_version }}.update/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1"
+FROM_LOCATION="/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_update_version }}/Siebel_Install_Image/{{ siebel_update_version }}.update/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1/stage/products.xml"
+s_topLevelComp="oracle.siebel.ses"
+s_SiebelVersion="{{ siebel_version }}.0"
+ORACLE_HOME="{{siebel_base_path}}/ses"
+ORACLE_HOME_NAME="Siebel_Home__opt_siebel_ses_Siebel_ses"
+b_isGatewayInstalled="false"
+b_isSiebsrvrInstalled="true"
+b_isApplicationInterfaceInstalled="false"
+b_isEnterpriseCacheInstalled="false"
+b_isConstraintEngineInstalled="false"
+selectedLangs="[English]"
+DEINSTALL_LIST={"oracle.siebel.ses","{{ siebel_update_version }}.0"}
+SHOW_DEINSTALL_CONFIRMATION=true

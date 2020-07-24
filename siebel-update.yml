@@ -1,0 +1,3 @@
+- hosts: siebel-server
+  roles:
+    - siebel-update

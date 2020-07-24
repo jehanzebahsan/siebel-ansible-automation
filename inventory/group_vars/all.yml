@@ -1,0 +1,130 @@
+---
+siebel_version: 17.0.0.0
+siebel_update_version: 20.4.0.0
+oracle_version: 12.1.0.2.0
+oracle_client_version: 12.1.0.2.0
+ohs_version: 11.1.1.9.0
+jdk_version: 1.8.0_144
+
+target_platform: Linux
+
+software_repository_path: /u01/siebel/software_repository
+oracle_base_path: /u01/app/oracle
+oracle_home_path: /u01/app/oracle/product/12.1.0.2.0/
+oracle_passwd: "BEstr0ng_#1"
+
+siebel_base_path: /u01/Siebel
+
+#HOME PATHS
+#Siebel_AI_HOME=
+#Siebel_GW_HOME=
+#Siebel_SES_HOME=
+
+#java_home: /usr/java8_64
+java_home: /usr/java/jdk1.8.0_251-amd64/jre/
+
+user_ocid: ocid1.user.oc1..aaaaaaaayuuxwhg5q6fgojxbortsh4bxp2s6fngateqah6nzvvusbogtu33a
+tenancy: ocid1.tenancy.oc1..aaaaaaaaabc4esylkbw3jkbquuluuq4iftuuwnfc2yg2fguo4s7j43exv6pq
+region: us-phoenix-1
+subnet_ocid: ocid1.subnet.oc1.phx.aaaaaaaaxt6e2fanchnolks5r3h232cp7ckxmok4min45tfsgnzcisla2dwa
+comp_ocid: ocid1.compartment.oc1..aaaaaaaar7gkijkmrfcvmnfrxawc5eyhsoxasdie6t25vtqvhsm4ufvgmhdq
+db_service_name: siebeldb_pdb1.sub05181111190.acststvcn.oraclevcn.com
+db_service_name_con: siebeldb_phx228.sub05181111190.acststvcn.oraclevcn.com
+
+
+
+#siebel_environment: stage_nonloy
+#java_home: /usr/java/jdk1.8.0_221 #create a sembolic link to /usr/java/jdk_latest
+#jdk_version: 8u221
+db_platform: Oracle
+#oracle_base_path: /apps/oracle
+#oracle_client_version: 12.2.0.1.0
+#oracle_passwd: "changeme123"
+#oracle_version: 19.0.0.0.0
+#orainv_base_path: /apps/oracle
+#software_repository_path: /NLYDeploymentShare/software/Siebel
+#siebel_base_path: /apps/siebel
+siebel_sfs_path:  /u01/Siebel/SiebFS
+#install_dir_cgw:      cgw
+#install_dir_ses:      ses
+#install_dir_sai:      sai
+siebel_enterprise:    DemoEnt
+ai_username:          sadmin
+ai_usernamepwd:       sadmin
+siebel_dbusername:    SADMIN
+siebel_dbusernamepwd: BEstr0ng_#1
+siebel_tableowner:    SIEBEL
+siebel_tableownerpwd: BEstr0ng_#1
+siebel_anonlogin:     GUESTCST
+siebel_anonloginpwd:  BEstr0ng_#1
+siebel_emplogin:      GUESTERM
+siebel_emploginpwd:   BEstr0ng_#1
+siebel_guesterm:      GUESTERM
+siebel_guestermpwd:   BEstr0ng_#1
+siebel_guestcst:      GUESTCST
+siebel_guestcstpwd:   BEstr0ng_#1
+siebel_ldapuser:      LDAPUSER
+siebel_ldapuserpwd:   BEstr0ng_#1
+#siebel_version:          17.0.0.0
+#siebel_version_patchset: 20.2.0.0
+#target_platform:  linux
+siebel_install_lang: "[English, German]"
+siebel_deploy_lang: "enu"
+siebel_primary_lang: "enu"
+pki_truststore: "{{siebel_base_path}}/pki/truststore.jks" # use for CACErtfileanme in Profile configuration
+pki_keystore: "{{siebel_base_path}}/pki/keystore.jks"
+siebel_ent_encrypt: "TLS"
+pki_pwd: password
+pki_dn: "*.com"
+gw_redirectport:  8091
+gw_httpport:      8090
+gw_shutdownport:  8092
+gw_tlsport:       8093
+gw_registryport:  2320
+gw_clstr_clientport:   2320          # Siebel Gateway Cluster Registry Client Port
+gw_clstr_followerport: 2330          # Siebel Gateway Cluster Registry Follower Port
+gw_clstr_leaderport:   2340          # Siebel Gateway Cluster Registry Leader Port
+ses_redirectport: 8101
+ses_httpport:     8100
+ses_shutdownport: 8102
+
+ai_adminport:     9999
+ai_redirectport:  8081
+ai_httpport:      8080
+ai_shutdownport:  8082
+
+sc_brokerport:    2321
+sync_mgrport:     40400
+
+siebel_owner_user:  siebel
+siebel_owner_group: sse_role
+oracle_owner_user:  siebel
+oracle_owner_group: siebel
+siebel_sfs_nfsendspoint: sblfilesysttem # currently unused
+siebel_sfs_oci: true
+siebel_sfs_size_gb: 100
+siebel_enablecompgroups: "callcenter,eai,remote,workflow,CommMgmt"  #siebelwebtools #only applicable if siebel_server_profile is defined
+gw_clstr_profile:          "Gateway_Cluster_Profile"   # Siebel Gateway Cluster Review Profile
+siebel_enterprise_profile: "Ent_Profile"
+siebel_server_profile: "Default_Server_Profile"
+siebel_ai_profile:         "Default_AI_Profile"
+siebel_mig_profile_name:   "Siebel_Migration_Profile"
+siebel_mig_deploy_name:    "Siebel_Mig_Ent"
+siebel_mig_multi_conn: yes
+siebel_db:                "siebeldb" ## first line tnsnames.ora
+siebel_db_port:           1521
+siebel_db_netservicename: "siebeldb" ## first line tnsnames.ora
+siebel_db_servicename:    "siebeldb_pdb1.sub05181111190.acststvcn.oraclevcn.com"    ## SERVICE_NAME tnsnames.ora
+siebel_db_hostname: "siebdbsystem.sub05181111190.acststvcn.oraclevcn.com"
+siebel_db_uniquename:     "SAALN2C_iad2sg"     ## ORACLE_UNIQUE_NAME -- SELECT name, db_unique_name FROM v$database;
+database_name:            "SAALN2"            ## ORACLE_SID -- SELECT sys_context('USERENV','DB_NAME') FROM dual;
+siebel_mig_profile_authen_type: "Basic"   # AuthenticationType
+siebel_mig_profile_timeout: 3600
+siebel_mig_profile_sleeptime: 15
+siebel_mig_profile_loglevel: "Error"
+siebel_mig_profile_pkg_loc: "/apps/globalshare/NonLoyalty/MigrationPackage"
+ai_context_docbase: "/apps/nonloy_files/files_store"
+siebel_deploy_sai_prefix: sublease
+siebel_deploy_ses_prefix: sblses
+siebel_deploy_cgw_prefix: sblcgw
+migration_plan_export:

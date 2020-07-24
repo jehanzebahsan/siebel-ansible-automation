@@ -1,0 +1,46 @@
+---
+# Playbook for deploy enterprise
+
+    - name: deploy enterprise
+      uri:
+        url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/enterprises/"
+        force_basic_auth: yes
+        user: "{{ siebel_dbusername }}"
+        password: "{{ siebel_dbusernamepwd }}"
+        validate_certs: no
+        method: POST
+        body_format: json
+        return_content: yes
+        timeout: 120
+        body:
+          DeploymentInfo:
+            ProfileName: "{{siebel_enterprise_profile}}"
+            Action: Deploy
+          EnterpriseDeployParams:
+            SiebelEnterprise: "{{ siebel_enterprise }}"
+            EnterpriseDesc: "{{ siebel_enterprise }} Enterprise"
+      environment:
+        https_proxy: ""
+      register: deploy_enterprise
+      tags:
+        - entdeploy
+
+    - name: check enterprise deploy status
+      uri:
+        url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/enterprises/{{ siebel_enterprise }}"
+        force_basic_auth: yes
+        user: "{{ siebel_dbusername }}"
+        password: "{{ siebel_dbusernamepwd }}"
+        validate_certs: no
+        method: GET
+        return_content: yes
+        timeout: 120
+      environment:
+        https_proxy: ""
+      register: check_enterprise_deploy_status
+      until: ( check_enterprise_deploy_status.content | from_json).DeploymentInfo.Status == "Deployed" or ( check_enterprise_deploy_status.content | from_json).DeploymentInfo.Status == "DeployFailed"
+      retries: 6
+      delay: 10
+      failed_when: "'DeployFailed' in check_enterprise_deploy_status.content"
+      tags:
+        - entdeploy

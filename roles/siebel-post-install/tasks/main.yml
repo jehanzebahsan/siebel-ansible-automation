@@ -1,0 +1,203 @@
+---
+# Common tasks to be performed after installing the Siebel system
+
+- name: copy keyfile.bin
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/keyfile.bin"
+    dest:  "{{ siebel_base_path }}/{{ install_dir_ses }}/siebsrvr/admin"
+    remote_src: yes
+    backup: yes
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  tags:
+    - cp_keyfile_bin
+    - post_install
+    
+    
+- name: check if siebsrvr/admin dir exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/siebsrvr/admin"
+  register: siebsrvr_admin 
+  tags:
+    - cp_siebsrvr_admin
+    - post_install
+  
+- name: copy siebsrvr/admin dir
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/siebsrvr/admin"
+    dest:  "{{ siebel_base_path }}/{{ install_dir_ses }}/siebsrvr/"
+    remote_src: no
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: siebsrvr_admin.stat.exists
+  tags:
+    - cp_siebsrvr_admin
+    - post_install
+    
+#case mgr
+- name: check if BATCH dir exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/BATCH"
+  register: batch_exists 
+  tags:
+    - cp_batch
+    - post_install
+  
+#case mgr  
+- name: copy BATCH dir
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/BATCH"
+    dest:  "{{ siebel_sfs_path }}/"
+    remote_src: no
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: batch_exists.stat.exists
+  tags:
+    - cp_batch
+    - post_install
+    
+    
+#non-loy
+- name: check if XSLT dir exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/XSLT"
+  register: xslt_exists 
+  tags:
+    - cp_xslt
+    - post_install
+  
+#non-loy  
+- name: copy XSLT dir
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/XSLT"
+    dest:  "{{ siebel_base_path }}/{{ install_dir_ses }}/siebsrvr/"
+    remote_src: yes
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: xslt_exists.stat.exists
+  tags:
+    - cp_xslt
+    - post_install
+    
+#non-loy
+- name: check if Bindings dir exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/Bindings"
+  register: bindings_exists 
+  tags:
+    - cp_bindings
+    - post_install
+  
+#non-loy  
+- name: copy Bindings dir
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/Bindings"
+    dest:  "{{siebel_sfs_path}}/AA"
+    remote_src: yes
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: bindings_exists.stat.exists
+  tags:
+    - cp_bindings
+    - post_install    
+
+#non-loy
+- name: check if JAR dir exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/JAR"
+  register: jar_exists 
+  tags:
+    - cp_jar
+    - post_install
+  
+#non-loy  
+- name: copy JAR dir
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: "{{software_repository_path}}/custom_files/{{siebel_environment}}/JAR"
+    dest:  "{{siebel_base_path}}/{{install_dir_cgw}}/applicationcontainer/webapps/siebel/WEB-INF/lib"
+    remote_src: yes
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: jar_exists.stat.exists
+  ignore_errors: yes
+  with_items:
+  - "{{siebel_base_path}}/{{install_dir_cgw}}/applicationcontainer/webapps/siebel/WEB-INF/lib"
+  - "{{siebel_base_path}}/{{install_dir_ses}}/applicationcontainer/webapps/siebel/WEB-INF/lib"
+  tags:
+    - cp_jar
+    - post_install
+    
+    
+
+#non-loy
+- name: check if custom security adapter exists
+  stat: path="{{software_repository_path}}/custom_files/{{siebel_environment}}/aasecadpt.so"
+  register: csa_exists 
+  tags:
+    - csa_exists
+    - post_install
+  
+#non-loy  
+- name: copy custom security adapter
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src:   "{{software_repository_path}}/custom_files/{{siebel_environment}}/aasecadpt.so"
+    dest:  "{{siebel_base_path}}/{{install_dir_ses}}/siebsrvr/lib"
+    remote_src: yes
+    backup: no
+    force: yes
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  when: csa_exists.stat.exists
+  tags:
+    - csa_exists
+    - post_install
+
+  
+#non-loy  
+- name: copy custom security adapter cfg
+  become: yes
+  become_user: root
+  become_method: sudo
+  template:
+    src:   "roles/siebel-post-install/files/secadpt.cfg.j2"
+    dest:  "{{siebel_base_path}}/{{install_dir_ses}}/siebsrvr/bin/secadpt.cfg"
+    owner: "{{ siebel_owner_user }}"
+    group: "{{ siebel_owner_group }}"
+    mode: '775'
+  tags:
+    - csa_cfg_exists
+    - post_install

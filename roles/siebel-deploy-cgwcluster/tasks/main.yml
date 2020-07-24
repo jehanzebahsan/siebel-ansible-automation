@@ -1,0 +1,26 @@
+---
+# Playbook for deploying gateway cluster
+
+- set_fact:
+    cluster_list: "{{ cluster_list|default([])  + [ {'PhysicalHostIP' : hostvars[item]['ansible_fqdn'] + ':' + gw_redirectport|string, 'IsPrimary': hostvars[item].primary_node} ] }}"
+  with_items: "{{groups['siebel_gw_cluster']}}"
+  tags:
+    - deploy_cgw_clstr
+
+- name: deploy cgw cluster
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_default_ipv4']['address']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/gatewaycluster/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 600
+    body: "{{  {'DeploymentInfo': {'ProfileName':gw_clstr_profile, 'Action':'Deploy'}, 'GatewayClusterNodeServiceList': cluster_list, 'GatewayClusterNodeRegistryList': cluster_list } }}"
+  environment:
+    https_proxy: ""
+  register: deploy_cgw_clstr
+  tags:
+  - deploy_cgw_clstr

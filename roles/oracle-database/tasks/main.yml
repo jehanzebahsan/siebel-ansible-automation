@@ -1,0 +1,32 @@
+- name: Create DB System
+  become: true
+  oci_db_system:
+    compartment_id: "{{ comp_ocid }}"
+    availability_domain: "vzAG:PHX-AD-2"
+    database_edition: "ENTERPRISE_EDITION"
+    db_home:
+      database:
+        admin_password: 'BEstr0ng_#1'
+        character_set: 'AL32UTF8'
+        db_backup_config:
+         auto_backup_enabled: False
+        db_name: 'siebeldb'
+        db_workload: 'OLTP'
+        ncharacter_set: 'AL16UTF16'
+        freeform_tags:
+            deployment: 'production'
+      db_version: '12.1.0.2'
+      display_name: siebel-db
+    disk_redundancy: "NORMAL"
+    display_name: "siebeldb"
+    hostname: "siebdbsystem"
+    initial_data_storage_size_in_gb: 4096
+    license_model: "LICENSE_INCLUDED"
+    node_count: 1
+    shape: "VM.Standard2.2"
+    ssh_public_keys: ["/home/opc/ansible/ansible-key.pub"]
+    subnet_id: "{{ subnet_ocid }}"
+    freeform_tags:
+        deployment: 'production'
+    wait: False
+    state: 'present'

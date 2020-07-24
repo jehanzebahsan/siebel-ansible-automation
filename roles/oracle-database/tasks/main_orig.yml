@@ -1,0 +1,94 @@
+---
+# tasks file for oracle-database
+
+- name: create oracle_base
+  file:
+    path: "{{oracle_base_path}}/tmp"
+    state: directory
+    mode: 0775
+    owner: oracle
+    group: oinstall
+
+- name: template response file
+  template:
+    src: "roles/oracle-database/files/oracle-{{oracle_version}}.rsp.j2"
+    dest: "/tmp/oracle-{{oracle_version}}.rsp"
+
+- name: run rootpre.sh on AIX
+  command: "/mnt{{ software_repository_path }}/oracle-{{target_platform}}-{{ oracle_version }}/unarchive/database/rootpre.sh"
+  when: ansible_distribution == "AIX"
+
+- name: install oracle
+  shell : "source /home/oracle/.bash_profile && echo y | ./runInstaller -ignoreSysPrereqs -ignorePrereq -showProgress -silent -waitforcompletion -responseFile /tmp/oracle-{{oracle_version}}.rsp"
+  become: true
+  become_user: oracle
+  become_method: su
+  args:
+    chdir: "/mnt{{ software_repository_path }}/oracle-{{target_platform}}-{{ oracle_version }}/unarchive/database"
+    creates: "{{oracle_base_path}}/base/product/12.1.0/dbhome_1/oraInst.loc"
+    executable: "/usr/bin/bash"
+
+- name: run orainstRoot.sh
+  command: "{{oracle_base_path}}/oraInventory/orainstRoot.sh"
+  args:
+    creates: /etc/oraInst.loc
+
+- name: run root.sh
+  command: "{{oracle_base_path}}/base/product/12.1.0/dbhome_1/root.sh"
+  args:
+    creates: /etc/oratab
+
+- name: template dbca response file
+  template:
+    src: "roles/oracle-database/files/oracle-{{oracle_version}}.dbca.j2"
+    dest: "/tmp/oracle-{{oracle_version}}-dbca.rsp"
+
+- name: create instance
+  shell : "source /home/oracle/.bash_profile && dbca -silent -createDatabase -cloneTemplate -responseFile /tmp/oracle-{{oracle_version}}-dbca.rsp"
+  become: true
+  become_user: oracle
+  become_method: su
+  args:
+    executable: "/usr/bin/bash"
+    creates: "{{oracle_base_path}}/base/oradata/orcl/system01.dbf"
+
+- name: template netca response file
+  template:
+    src: "roles/oracle-database/files/oracle-{{oracle_version}}.netca.j2"
+    dest: "/tmp/oracle-{{oracle_version}}-netca.rsp"
+
+- name: create listener
+  shell : "source /home/oracle/.bash_profile && netca -silent -responseFile /tmp/oracle-{{oracle_version}}-netca.rsp"
+  become: true
+  become_user: oracle
+  become_method: su
+  args:
+    executable: "/usr/bin/bash"
+    creates: "{{oracle_base_path}}/base/product/12.1.0/dbhome_1/network/admin/listener.ora"
+
+- name: create autostart script
+  template:
+    src: "roles/oracle-database/files/oracle-{{oracle_version}}.dbora.j2"
+    dest: "/etc/dbora"
+    mode: 0744
+
+- name: patch oratab
+  lineinfile:
+    path: /etc/oratab
+    regexp: "^orcl:"
+    line: "orcl:{{oracle_base_path}}/base/product/12.1.0/dbhome_1:Y"
+
+- name: make autostart
+  lineinfile:
+    path: /etc/inittab
+    regexp: "^oracle:2:once:/etc/dbora"
+    line: "oracle:2:once:/etc/dbora start > /dev/console 2>&1"
+
+- name: patch rc.shutdown
+  lineinfile:
+    path: /etc/rc.shutdown
+    regexp: "^/etc/rc.oracle stop"
+    line: "/etc/rc.oracle stop  > /dev/console 2>&1"
+
+- debug:
+    msg: "Oracle EM Express URL https://{{ansible_fqdn}}:5500/em"

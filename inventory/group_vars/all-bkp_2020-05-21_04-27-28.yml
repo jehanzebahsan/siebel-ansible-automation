@@ -1,0 +1,97 @@
+---
+siebel_base_path: 
+siebel_sfs_path: 
+software_repository_path: 
+oracle_base_path: 
+oracle_home_path: /product/12.2.0.1.0
+
+oracle_client_version: 12.2.0.1.0
+
+oracle_version: 12.2.0.1.0
+db_host_name: 
+siebel_db_port: 
+siebel_db_servicename: 
+siebel_db: 
+
+siebel_version: 17.0.0.0
+siebel_update_version: 20.2.0.0
+siebel_enterprise: 
+
+install_dir_cgw: cgw
+
+install_dir_ses: ses
+
+install_dir_sai: sai
+
+pki_keystore: 
+pki_pwd: BEstr0ng_#1
+
+ai_username: SADMIN
+ai_usernamepwd: BEstr0ng_#1
+siebel_dbusername: SADMIN
+siebel_dbusernamepwd: BEstr0ng_#1
+siebel_tableowner: SIEBEL
+siebel_tableownerpwd: BEstr0ng_#1
+siebel_ldapuser: LDAPUSER
+siebel_ldapuserpwd: BEstr0ng_#1
+siebel_emplogin: GUESTERM
+siebel_emploginpwd: BEstr0ng_#1
+siebel_guestcst: GUESTCST
+siebel_guestcstpwd: BEstr0ng_#1
+
+gw_redirectport: 9011
+gw_httpport: 9012
+gw_shutdownport: 9013
+gw_tlsport: 9014
+gw_registryport: 2320
+gw_clstr_clientport: 2320
+gw_clstr_followerport: 2330
+gw_clstr_leaderport: 2340
+
+ses_redirectport: 9211
+ses_httpport: 9212
+ses_shutdownport: 9213
+
+ai_adminport: 9999
+ai_redirectport: 9111
+ai_httpport: 9112
+ai_shutdownport: 9113
+
+sc_brokerport: 2321
+sync_mgrport: 40400
+
+siebel_owner_user: 
+siebel_owner_group: 
+oracle_owner_user: 
+oracle_owner_group: 
+
+siebel_sfs_oci: True
+siebel_sfs_size_gb: 
+siebel_enablecompgroups: "callcenter,eai,remote,workflow,CommMgmt"
+
+gw_clstr_profile: 
+siebel_enterprise_profile: 
+siebel_ai_profile: 
+siebel_mig_profile_name: 
+siebel_mig_deploy_name: 
+
+user_ocid: 
+tenancy: 
+region: us-phoenix-1
+subnet_ocid: 
+comp_ocid: 
+
+# Hard coded Values
+
+oracle_passwd: "BEstr0ng_#1"
+jdk_version: 1.8.0_144
+java_home: /usr/java/jdk1.8.0_251-amd64/jre/
+target_platform: Linux
+db_platform: Oracle
+siebel_anonlogin:     ANONUSER
+siebel_anonloginpwd:  BEstr0ng_#1
+siebel_install_lang: "[English]"
+siebel_primary_lang: "enu"
+siebel_ent_encrypt: "TLS"
+pki_dn: "*.com"
+pki_truststore: "{{siebel_base_path}}/pki/truststore.jks"

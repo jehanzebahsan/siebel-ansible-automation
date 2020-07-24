@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: check db system facts
+      oci_db_system_facts:
+        compartment_id: "ocid1.compartment.oc1..aaaaaaaavtaiyouq3vuzdn7rjx36rcltjrcrxazt7cmrtp57vhylqqisitna"

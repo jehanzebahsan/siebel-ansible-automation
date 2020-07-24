@@ -1,0 +1,43 @@
+---
+# Playbook for create siebel gateway cluster profile
+
+- name: create Gateway Cluster Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/gatewaycluster/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      Profile:
+        ProfileName: "{{ gw_clstr_profile }}"
+      GatewayClusterConfigParams: 
+        ClientPort: "{{ gw_clstr_clientport }}"
+        FollowerPort: "{{ gw_clstr_followerport }}"
+        LeaderPort: "{{ gw_clstr_leaderport }}"
+  environment:
+    https_proxy: ""
+  register: create_gateway_cluster_profile
+  tags:
+  - cgw_clstr_profile
+
+- name: Delete Sample Gateway Cluster Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/gatewaycluster/sample_gatewaycluster_profile"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - cgw_clstr_profile

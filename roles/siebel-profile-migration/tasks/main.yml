@@ -1,0 +1,77 @@
+---
+### Main Tasks file to Create a Siebel Migration Profile using SMC REST API
+
+- name: Delete Migration Profile (if existing)
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/migrations/{{ siebel_mig_profile_name }}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - mig_profile
+
+- name: Delete Sample Migration Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/migrations/sample_migration_server_profile"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: DELETE
+    body_format: json
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  ignore_errors: yes
+  tags:
+    - mig_profile
+    
+- name: Create Migration Application Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/migrations"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    body:
+      Profile:
+        ProfileName: "{{ siebel_mig_profile_name }}"
+      MigrationConfigParams:
+        DatabaseType: "{{ db_platform }}"
+        Hostname: "{{groups['oracle_database'][0]}}"
+        Portnum: "{{ siebel_db_port }}"
+        TableOwner: "{{ siebel_tableowner }}"
+        Username: "{{ siebel_dbusername }}"
+        Password: "{{ siebel_dbusernamepwd }}"
+        ServiceName: "{{ siebel_db_servicename }}"
+        Instance: null
+        DatabaseName: null
+        AuthenticationType: "{{ siebel_mig_profile_authen_type }}"
+        AuthenticationHost: "https://{{ hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}"
+        Timeout: "{{ siebel_mig_profile_timeout }}"
+        SleepTime: "{{ siebel_mig_profile_sleeptime }}"
+        UserSpec: null
+        SiebelApplicationName: "eai"
+        Language: "{{ siebel_primary_lang }}"
+        AssertionSpec: ""
+        IDPLogoffURL: null
+        IDPLogoffReturnURL: null
+        PackageLocation: "{{ siebel_mig_profile_pkg_loc }}"
+        LogLevel: "{{ siebel_mig_profile_loglevel }}"
+  environment:
+    https_proxy: ""
+  register: MigrationProfile
+  tags:
+    - mig_profile

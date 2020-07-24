@@ -1,0 +1,61 @@
+---
+# tasks file for siebel gateway
+
+- name: create siebel_base
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0775
+    owner: siebel
+    group: sse_role
+  with_items:
+    - "{{siebel_base_path}}"
+    - "{{siebel_base_path}}/gw/oraInventory"
+    - "{{siebel_base_path}}/sfs"
+
+- name: create siebel gw oraInventory
+  blockinfile:
+    path: "{{siebel_base_path}}/gw/oraInventory/oraInst.loc"
+    create: yes
+    mode: 0775
+    owner: siebel
+    group: sse_role
+    block: |
+       inventory_loc={{siebel_base_path}}/gw/oraInventory
+       inst_group=siebel
+
+- name: template install gateway response file
+  become: true
+  become_user: siebel
+  become_method: sudo
+  template:
+    src: roles/siebel-gateway/files/siebel-{{siebel_version}}-install-gw.rsp.j2
+    dest: /tmp/siebel-{{siebel_version}}-install-gw.rsp
+
+- name: install gateway
+  shell : "source /home/siebel/.bash_profile && ./runInstaller -silent -waitforcompletion -responseFile /tmp/siebel-{{siebel_version}}-install-gw.rsp -jreloc {{java_home}} -invPtrLoc {{siebel_base_path}}/gw/oraInventory/oraInst.loc"
+  become: true
+  become_user: siebel
+  become_method: sudo
+  args:
+    chdir: "/mnt{{ software_repository_path }}/siebel-{{target_platform}}-{{ siebel_version }}/Siebel_Install_Image/{{siebel_version}}/{{target_platform}}/Server/Siebel_Enterprise_Server/Disk1/install"
+    executable: "/usr/bin/bash"
+    creates: "{{siebel_base_path}}/gw/gtwysrvr/cfgenv.sh"
+
+- name: Install Tomcat init script
+  copy:
+    src: roles/siebel-gateway/files/gtw-tomcat-initscript.sh
+    dest: /etc/init.d/gtw-tomcat
+    mode: 0755
+
+- name: Start Tomcat
+  systemd:
+    name: gtw-tomcat
+    state: started
+    enabled: yes
+
+- name: wait for tomcat to start
+  wait_for:
+    port: 8092
+    delay: 10
+    state: started

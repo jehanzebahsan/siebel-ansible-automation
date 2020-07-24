@@ -1,0 +1,63 @@
+<results md5_sum="38d0ebc4b5b2caae8efb3b79d9473986">
+  <generated_date in_epoch_ms="1583418396000">2020-03-05 14:26:36</generated_date>
+  <patch has_prereqs="n" has_postreqs="n" is_system_patch="n"> 
+    <bug> 
+      <number>30753139</number>
+      <abstract><![CDATA[20.1.0.0 23073 sba UPDATE20_1 sebl_aru]]></abstract>
+    </bug> 
+    <name>20.1.0.0 UPDATE20_1</name>
+    <type>Patchset</type>
+    <status>Available</status>
+    <access id="m">Open access</access> 
+    <url> 
+      <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23316167]]></patch_readme> 
+      <patch_details><![CDATA[/download/30753139.html]]></patch_details>
+    </url> 
+    <request_id>23316167</request_id>
+    <urm_components> 
+      <qparts ctype_id="201"> 
+        <qpart cid="32583" version="Q2968"><![CDATA[Siebel CRM]]></qpart> 
+      </qparts> 
+      <urm_releases ctype_id="5"> 
+        <urm_release cid="942457" version="20.0"><![CDATA[Siebel Industry Applications]]></urm_release> 
+      </urm_releases> 
+    </urm_components> 
+    <product id="13046" bugdb_id="2968"><![CDATA[Siebel CRM Family]]></product> 
+    <release id="600000000151225" name="20.0.0" platform_patch_not_required="N" cc="N"><![CDATA[Siebel Industry Applications 20.0]]></release> 
+    <platform id="226" bugdb_id="226"><![CDATA[Linux x86-64]]></platform> 
+    <language id="0" iso_code="EN"><![CDATA[American English]]></language> 
+    <translations_available>No</translations_available> 
+    <classification id="174">General</classification> 
+    <patch_classification id="174">General</patch_classification> 
+    <support_level id="G">General Support</support_level> 
+    <entitlements> 
+      <entitlement code="SW"/> 
+    </entitlements> 
+    <size>5498915291</size>
+    <files> 
+      <file> 
+        <name>p30753139_2000_Linux-x86-64_2of3.zip</name>
+        <size>2504870545</size>
+        <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p30753139_2000_Linux-x86-64_2of3.zip?aru=23316167&patch_file=p30753139_2000_Linux-x86-64_2of3.zip]]></download_url> 
+        <digest type="SHA-256">4E0A4A77D83F592E6D5BC4066CCD2944F57CF8E9EF4CC0866B03A7BF5E7F877F</digest> 
+        <digest type="SHA-1">AB3629A2D64E0ABA589AECA5A50CAD25056C5FFE</digest> 
+      </file> 
+      <file> 
+        <name>p30753139_2000_Linux-x86-64_1of3.zip</name>
+        <size>81311</size>
+        <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p30753139_2000_Linux-x86-64_1of3.zip?aru=23316167&patch_file=p30753139_2000_Linux-x86-64_1of3.zip]]></download_url> 
+        <digest type="SHA-256">A3BEADA31017CF1156A28DB096DB5138BA90F61BED0624AAF18977EA01B818B5</digest> 
+        <digest type="SHA-1">C72D69A0D3004996719F0FE8B6E33F5435A69002</digest> 
+      </file> 
+      <file> 
+        <name>p30753139_2000_Linux-x86-64_3of3.zip</name>
+        <size>2993963435</size>
+        <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p30753139_2000_Linux-x86-64_3of3.zip?aru=23316167&patch_file=p30753139_2000_Linux-x86-64_3of3.zip]]></download_url> 
+        <digest type="SHA-1">77FD69B36FECFCF2C4173200A4D0454818FCBA32</digest> 
+        <digest type="SHA-256">F6379AB8E42E3C637E5B01E6AC693D3FC5A9DE9680159F867F120FECD8C8AF5A</digest> 
+      </file> 
+    </files> 
+    <updated_date in_epoch_ms="1579624582000">2020-01-21 16:36:22</updated_date> 
+    <released_date in_epoch_ms="1578898180000">2020-01-13 06:49:40</released_date> 
+  </patch> 
+</results>

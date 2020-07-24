@@ -1,0 +1,74 @@
+---
+# Playbook for deploy siebel server
+
+#- name: remove deploy server (non-default path)
+#  uri:
+#    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/servers/{{ #hostvars[item]['siebsrvr_name'] }}"
+#    force_basic_auth: yes
+#    user: "{{ siebel_dbusername }}"
+#    password: "{{ siebel_dbusernamepwd }}"
+#    validate_certs: no
+#    method: DELETE
+#    body_format: json
+#    return_content: yes
+#    timeout: 600
+#  delegate_to: "{{ item }}"
+#  loop: "{{ groups['siebel_server'] }}"
+#  when: hostvars[item].siebsrvr_name is defined
+#  tags:
+#    - never
+#    - remove_srvrdeploy
+
+
+- name: deploy server
+  uri:
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/servers/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 600
+    body:
+      DeploymentInfo:
+        PhysicalHostIP: "{{ hostvars[item]['ansible_fqdn'] }}:{{ses_redirectport}}"
+        ProfileName: Default_Server_Profile
+        #ProfileName: "{% if multi_server_profiles %}{{ hostvars[item]['siebsrvr_profile'] }}{% else %}{{siebel_server_profile}}{%endif%}"
+        Action: Deploy
+      ServerDeployParams:
+        SiebelServer:     "SiebelSrvr1"
+        SiebelServerDesc: "{{ item }} Siebel Application Server"
+        DeployedLanguage: "{{ siebel_deploy_lang}}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['siebel-server'] }}"
+  #when: hostvars[item].siebel-server is defined
+#  loop_control:
+#      index_var: my_idx
+  tags:
+    - srvrdeploy
+
+- name: check server deploy status
+  uri:
+    #url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/servers/{{ hostvars[item]['siebsrvr_name'] }}"
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/servers/SiebelSrvr1"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: GET
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  register: check_server_deploy_status
+  until: ( check_server_deploy_status.content | from_json).DeploymentInfo.Status == "Deployed" or ( check_server_deploy_status.content | from_json).DeploymentInfo.Status == "DeployFailed"
+  retries: 60
+  delay: 10
+  failed_when: "'DeployFailed' in check_server_deploy_status.content"
+  #delegate_to: "{{ item }}"
+  #loop: "{{ groups['siebel-server'] }}"
+  #when: hostvars[item].siebsrvr_name is defined
+  #tags:
+  #  - srvrdeploy

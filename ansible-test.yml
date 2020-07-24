@@ -1,0 +1,10 @@
+---
+# Playbook for Creating a Siebel Enterpise via SMC
+- hosts: siebel-server
+  tasks:
+      - debug:
+          msg="{{ansible_fqdn}}"
+      - debug:
+          msg="{{ansible_hostname}}"
+      - debug:
+          msg="{{ansible_nodename}}"

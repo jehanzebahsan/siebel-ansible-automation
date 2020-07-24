@@ -1,0 +1,47 @@
+---
+# Task for deploying Siebel Migration Application
+
+- name: Deploy Siebel Migration Application Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/migrations/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      DeploymentInfo:
+        PhysicalHostIP: "{{ hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}"
+        ProfileName: "{{ siebel_mig_profile_name }}"
+        Action: "Deploy"
+      MigrationDeployParams:
+        MigrationDesc: "{{ siebel_mig_deploy_name }}"
+        SiebelMigration: "{{ siebel_mig_deploy_name }}"
+  environment:
+    https_proxy: ""
+  register: deploy_enterprise
+  tags:
+    - mig_deploy
+
+- name: Check Siebel Migration Application Profile Deployment Status Deployed
+  uri:
+    url: "https://{{ hostvars[groups['siebel_smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/deployments/migrations/{{ siebel_mig_deploy_name }}"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: GET
+    return_content: yes
+    timeout: 120
+  environment:
+    https_proxy: ""
+  register: check_migration_deploy_status
+  until: ( check_migration_deploy_status.content | from_json).DeploymentInfo.Status == "Deployed" or ( check_migration_deploy_status.content | from_json).DeploymentInfo.Status == "DeployFailed"
+  retries: 60
+  delay: 10
+  failed_when: "'DeployFailed' in check_migration_deploy_status.content"
+  tags:
+    - mig_deploy

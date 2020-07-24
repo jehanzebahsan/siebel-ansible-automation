@@ -1,0 +1,97 @@
+---
+siebel_base_path: /u01/Siebel
+siebel_sfs_path: /SibFS
+software_repository_path: /u01/siebel/software_repository
+oracle_base_path: /u01/app/oracle
+oracle_home_path: /u01/app/oracle/product/12.2.0.1.0
+
+oracle_client_version: 12.2.0.1.0
+
+oracle_version: 12.2.0.1.0
+db_host_name: siebeldbsystem
+siebel_db_port: 1521
+siebel_db_servicename: siebeldb
+siebel_db: siebeldb
+
+siebel_version: 17.0.0.0
+siebel_update_version: 20.4.0.0
+siebel_enterprise: DEMOENT
+
+install_dir_cgw: cgw
+
+install_dir_ses: ses
+
+install_dir_sai: sai
+
+pki_keystore: truststore.jks
+pki_pwd: password
+
+ai_username: SADMIN
+ai_usernamepwd: BEstr0ng_#1
+siebel_dbusername: SADMIN
+siebel_dbusernamepwd: BEstr0ng_#1
+siebel_tableowner: SIEBEL
+siebel_tableownerpwd: BEstr0ng_#1
+siebel_ldapuser: LDAPUSER
+siebel_ldapuserpwd: BEstr0ng_#1
+siebel_emplogin: GUESTERM
+siebel_emploginpwd: BEstr0ng_#1
+siebel_guestcst: GUESTCST
+siebel_guestcstpwd: BEstr0ng_#1
+
+gw_redirectport: 9011
+gw_httpport: 9012
+gw_shutdownport: 9013
+gw_tlsport: 9014
+gw_registryport: 2320
+gw_clstr_clientport: 2320
+gw_clstr_followerport: 2330
+gw_clstr_leaderport: 2340
+
+ses_redirectport: 9211
+ses_httpport: 9212
+ses_shutdownport: 9213
+
+ai_adminport: 9999
+ai_redirectport: 9111
+ai_httpport: 9112
+ai_shutdownport: 9113
+
+sc_brokerport: 2321
+sync_mgrport: 40400
+
+siebel_owner_user: siebel
+siebel_owner_group: sse_role
+oracle_owner_user: oracle
+oracle_owner_group: oinstall
+
+siebel_sfs_oci: True
+siebel_sfs_size_gb: 
+siebel_enablecompgroups: "callcenter,eai,remote,workflow,CommMgmt"
+
+gw_clstr_profile: 
+siebel_enterprise_profile: Ent_profile
+siebel_ai_profile: Test_profile
+siebel_mig_profile_name: 
+siebel_mig_deploy_name: 
+
+user_ocid: ocid1.user.oc1..aaaaaaaayuuxwhg5q6fgojxbortsh4bxp2s6fngateqah6nzvvusbogtu33a
+tenancy: ocid1.tenancy.oc1..aaaaaaaaabc4esylkbw3jkbquuluuq4iftuuwnfc2yg2fguo4s7j43exv6pq
+region: us-phoenix-1
+subnet_ocid: ocid1.subnet.oc1.phx.aaaaaaaaxt6e2fanchnolks5r3h232cp7ckxmok4min45tfsgnzcisla2dwa
+comp_ocid: ocid1.compartment.oc1..aaaaaaaar7gkijkmrfcvmnfrxawc5eyhsoxasdie6t25vtqvhsm4ufvgmhdq
+
+# Hard coded Values
+
+oracle_passwd: "BEstr0ng_#1"
+jdk_version: 1.8.0_144
+java_home: /usr/java/jdk1.8.0_251-amd64/jre/
+target_platform: Linux
+db_platform: Oracle
+siebel_anonlogin:     ANONUSER
+siebel_anonloginpwd:  BEstr0ng_#1
+siebel_install_lang: "[English]"
+siebel_primary_lang: "enu"
+siebel_ent_encrypt: "TLS"
+pki_dn: "*.com"
+pki_truststore: "{{siebel_base_path}}/pki/truststore.jks"

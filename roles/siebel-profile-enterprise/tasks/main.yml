@@ -1,0 +1,57 @@
+---
+# Playbook for create enterprise profile
+
+- name: create enterprise Profile
+  uri:
+    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/enterprises/"
+    force_basic_auth: yes
+    user: "{{ siebel_dbusername }}"
+    password: "{{ siebel_dbusernamepwd }}"
+    validate_certs: no
+    method: POST
+    body_format: json
+    return_content: yes
+    timeout: 120
+    body:
+      EnterpriseConfigParams:
+        ServerFileSystem: "{{ siebel_sfs_path }}"
+        UserName: "{{ siebel_dbusername }}"
+        Password: "{{ siebel_dbusernamepwd }}"
+        DatabasePlatform: "{{ db_platform }}"
+        DBConnectString: "{{ siebel_db_netservicename }}"
+        DBUsername: "{{ siebel_dbusername }}"
+        DBUserPasswd: "{{ siebel_dbusernamepwd }}"
+        TableOwner: "{{ siebel_tableowner }}"
+        SecAdptProfileName: "Gateway"
+        PrimaryLanguage: "{{ siebel_primary_lang }}"
+        Encrypt: "SISNAPI{{ siebel_ent_encrypt }}"
+        CACertFileName:    "{{pki_truststore}}"
+        KeyFileName:       "{{pki_keystore}}"
+        KeyFilePassword:    "{{pki_pwd}}"
+        PeerAuth:           true
+        PeerCertValidation: true
+      Profile:
+        ProfileName: "Ent_Profile"
+  environment:
+    https_proxy: ""
+  register: create_enterprise_profile
+  tags:
+    - entprofile
+
+#- name: Delete Sample enterprise Profile
+#  uri:
+#    url: "https://{{hostvars[groups['siebel-smc'][0]]['ansible_fqdn']}}:{{ ai_redirectport }}/siebel/v1.0/cloudgateway/profiles/enterprises/sample_enterprise_profile"
+#    force_basic_auth: yes
+#    user: "{{ siebel_dbusername }}"
+#    password: "{{ siebel_dbusernamepwd }}"
+#    validate_certs: no
+#    method: DELETE
+#    body_format: json
+#    return_content: yes
+#    timeout: 120
+#  environment:
+#    https_proxy: ""
+#  ignore_errors: yes
+#  tags:
+#    - entprofile
+#    - delete_entprofile
